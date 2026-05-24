@@ -23,7 +23,7 @@ sandbox_mode = "workspace-write"
 network_access = true
 
 [model_providers.slai]
-name = "SLAI / OmniRoute"
+name = "SLAI"
 base_url = "${CODEX_BASE_URL}"
 env_key = "OPENAI_API_KEY"
 wire_api = "responses"
