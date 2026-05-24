@@ -25,10 +25,6 @@ CODEX_MODEL_VERBOSITY="${CODEX_MODEL_VERBOSITY:-high}"
 # Warning: this stores the API key as plaintext inside the Docker volume.
 cat > "$CODEX_ENV_FILE" <<EOF
 OPENAI_API_KEY=${OPENAI_API_KEY:-}
-CODEX_BASE_URL=${CODEX_BASE_URL}
-CODEX_MODEL=${CODEX_MODEL}
-CODEX_REASONING_EFFORT=${CODEX_REASONING_EFFORT}
-CODEX_MODEL_VERBOSITY=${CODEX_MODEL_VERBOSITY}
 EOF
 
 chmod 700 "$CODEX_DIR"
@@ -57,7 +53,7 @@ name = "SLAI / OmniRoute"
 base_url = "${CODEX_BASE_URL}"
 env_key = "OPENAI_API_KEY"
 wire_api = "responses"
-supports_websockets = false
+# supports_websockets = false
 stream_idle_timeout_ms = 300000
 stream_max_retries = 5
 EOF
