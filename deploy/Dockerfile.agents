@@ -81,7 +81,10 @@ RUN apk add --no-cache \
       ca-certificates \
       python3 \
       make \
-      g++ && \
+      g++ \
+      ripgrep \
+      jq \
+      libc6-compat && \
     npm install -g \
       @anthropic-ai/claude-code \
       @openai/codex && \
@@ -101,20 +104,26 @@ COPY --chown=open-design:open-design assets/frames ./assets/frames
 COPY --chown=open-design:open-design assets/community-pets ./assets/community-pets
 COPY --chown=open-design:open-design plugins/_official ./plugins/_official
 
-RUN mkdir -p /app/.od /app/.od/home /app/.od/home/.codex /app/.od/home/.claude && \
+COPY --chown=open-design:open-design deploy/start-open-design-agents.sh /app/start-open-design-agents.sh
+
+RUN mkdir -p \
+      /app/.od \
+      /app/.od/home \
+      /app/.od/home/.codex \
+      /app/.od/home/.claude && \
+    chmod +x /app/start-open-design-agents.sh && \
     chown -R open-design:open-design /app /app/.od
 
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max-old-space-size=384
+
 ENV OD_BIND_HOST=0.0.0.0
 ENV OD_PORT=7456
 ENV OD_WEB_PORT=7456
 
-# Important: both Claude Code and Codex need writable HOME/config dirs
 ENV HOME=/app/.od/home
 ENV PATH="/usr/local/bin:${PATH}"
 
-# Optional: reduce auto-update/background behavior
 ENV DISABLE_AUTOUPDATER=1
 
 EXPOSE 7456
@@ -122,4 +131,4 @@ EXPOSE 7456
 USER open-design
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "apps/daemon/dist/cli.js", "--no-open"]
+CMD ["/app/start-open-design-agents.sh"]
