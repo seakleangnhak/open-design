@@ -71,7 +71,6 @@ RUN pnpm --filter @open-design/daemon build && \
 
 FROM ${RUNTIME_IMAGE}
 
-# Extra tools for Claude Code CLI
 RUN apk add --no-cache \
       tini \
       poppler-utils \
@@ -79,8 +78,13 @@ RUN apk add --no-cache \
       curl \
       git \
       openssh-client \
-      ca-certificates && \
-    npm install -g @anthropic-ai/claude-code && \
+      ca-certificates \
+      python3 \
+      make \
+      g++ && \
+    npm install -g \
+      @anthropic-ai/claude-code \
+      @openai/codex && \
     addgroup -S -g 1001 open-design && \
     adduser -S -D -u 1001 -G open-design open-design
 
@@ -97,17 +101,21 @@ COPY --chown=open-design:open-design assets/frames ./assets/frames
 COPY --chown=open-design:open-design assets/community-pets ./assets/community-pets
 COPY --chown=open-design:open-design plugins/_official ./plugins/_official
 
-RUN mkdir -p /app/.od /home/open-design && \
-    chown -R open-design:open-design /app /home/open-design
+RUN mkdir -p /app/.od /app/.od/home /app/.od/home/.codex /app/.od/home/.claude && \
+    chown -R open-design:open-design /app /app/.od
 
 ENV NODE_ENV=production
 ENV NODE_OPTIONS=--max-old-space-size=384
 ENV OD_BIND_HOST=0.0.0.0
 ENV OD_PORT=7456
+ENV OD_WEB_PORT=7456
 
-# Important: Claude Code needs a writable HOME
+# Important: both Claude Code and Codex need writable HOME/config dirs
 ENV HOME=/app/.od/home
 ENV PATH="/usr/local/bin:${PATH}"
+
+# Optional: reduce auto-update/background behavior
+ENV DISABLE_AUTOUPDATER=1
 
 EXPOSE 7456
 
